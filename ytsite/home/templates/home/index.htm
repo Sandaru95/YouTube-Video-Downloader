@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}">
+    <!-- Jquery -->
+    <script src="{% static 'js/jquery-2.1.4.js' %}"></script>
+    <script src="{% static 'js/jquery.nicescroll.js' %}"></script>
+    <!-- SweetAlert -->
+    <script src="{% static 'vendor/sweetalert/sweetalert.min.js' %}"></script>
+  </head>
+  <body>
+    <div class="s003">
+      <form action="{% url 'home:index' %}" method="POST">
+        {% csrf_token %}
+        <div class="inner-form">
+          <div class="input-field first-wrap">
+            <div class="input-select">
+              <select data-trigger="" name="choices_single_defaul">
+                <option>360p</option>
+                <option>144p</option>
+                <option>240p</option>
+                <option>480p</option>
+                <option>720p</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-field second-wrap">
+            <input id="search" type="text" name='song_name' placeholder="සින්දුවෙ නම මොකක්ද?" autofocus/>
+          </div>
+          <div class="input-field third-wrap">
+            <button class="btn-search" type="submit" onclick="event.preventDefault();handleSubmission(this);">
+              <span class="fa fa-download"></span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <script src="{% static 'js/extention/choices.js' %}"></script>
+    <script>
+      const choices = new Choices('[data-trigger]',
+      {
+        searchEnabled: false,
+        itemSelectText: '',
+      });
+
+    </script>
+  </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+  <style>
+      input{
+        font-weight: 900;
+      }
+      select{
+        font-weight: 900;
+        text-align: center;
+      }
+      select option{
+        font-weight: 900;
+        text-align: center;
+      }
+  </style>
+  <script>
+    function handleSubmission(button){
+      swal({
+        title: 'බා ගැනීමට උත්සහ කරමින්', 
+        text: 'ඔබේ ගීතය බා ගැනීමට උත්සහ කරමින්...', 
+        icon: 'info',
+      });
+      console.log('We are inside the Block of codes')
+      let song_name = button.form.song_name.value;
+      console.log(`Song Name: ${song_name}`);
+      let quality_selected = button.form.choices_single_defaul.value;
+      console.log(`Quality Selected: ${quality_selected}`);
+      $.ajax({
+        url : "/home/", // the endpoint
+        type : "POST", // http method
+        data : { choice_selected : quality_selected,
+              song_name : song_name,
+              'csrfmiddlewaretoken':document.getElementsByName("csrfmiddlewaretoken")[0].value
+        },
+        // handle a successful response
+        success : function(json) {
+          console.log('Success!');// log the returned json to the console
+          swal({
+            title: 'සාර්ථකයි', 
+            text: 'ඔබ ඉල්ලා සිටි ගීතය ඔබගේ පරිගණකයේ /Downloads ෆෝල්ඩරයට බාන ලදී', 
+            icon: 'success',
+          }).then( val => {
+            location.assign('/home/');
+          });
+        },
+
+        // handle a non-successful response
+        error : function(xhr,errmsg,err) {
+            $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+              " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+            swal({
+              title: 'අසාර්ථකයි', 
+              text: 'ඔබ ඉල්ලා සිටි ගීතය බා දීමට අප අපොහොසත් විය.', 
+              icon: 'warning',
+            });
+        }
+     });
+    }
+  </script>
+</html>
